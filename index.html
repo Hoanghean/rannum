@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+        h5 {
+            color: red;
+            text-align: center;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body class="container my-5">
+    <h1 class="mb-4">Random Number Generator</h1>
+
+    <div class="mb-3">
+        <label for="length" class="form-label">Length of Number (12+):</label>
+        <input type="number" id="length" class="form-control" value="12" min="12">
+    </div>
+
+    <div class="mb-3">
+        <label for="chunkSize" class="form-label">Chunk Size:</label>
+        <select id="chunkSize" class="form-select">
+            <option value="1">No Chunking</option>
+            <option value="2">2 digits</option>
+            <option value="3">3 digits</option>
+            <option value="4">4 digits</option>
+            <option value="5">5 digits</option>
+            <option value="6">6 digits</option>
+        </select>
+    </div>
+
+    <button id="generateBtn" class="btn btn-primary mb-3">Generate Number</button>
+    <button id="toggleReverseBtn" class="btn btn-secondary mb-3">Show/Hide Reversed Number</button>
+
+    <div class="pt-4">
+        <div id="result" class="mb-3"></div>
+        <hr>
+        <div id="reversedResult" class="mb-3 hidden"></div>
+    </div>
+
+    <script>
+        // Function to generate random number
+        function generateRandomNumber(length) {
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += Math.floor(Math.random() * 10);
+            }
+            return result;
+        }
+
+        // Function to chunk number based on selected size
+        function chunkNumber(number, chunkSize) {
+            const regex = new RegExp(`.{1,${chunkSize}}`, 'g');
+            return number.match(regex).join('-');
+        }
+
+        // Function to display number and save to localStorage
+        function displayAndSaveNumber() {
+            const length = document.getElementById('length').value;
+            const chunkSize = document.getElementById('chunkSize').value;
+            const randomNumber = generateRandomNumber(length);
+            const chunkedNumber = chunkNumber(randomNumber, chunkSize);
+
+            document.getElementById('result').innerHTML = `<h5 class="highlight"><b>${chunkedNumber}</b></h5>`;
+            localStorage.setItem('randomNumber', randomNumber);
+            localStorage.setItem('chunkSize', chunkSize);
+
+            // Hide reversed result on new generation
+            document.getElementById('reversedResult').classList.add('hidden');
+        }
+
+        // Function to toggle reversed number display
+        function toggleReversedNumber() {
+            const randomNumber = localStorage.getItem('randomNumber');
+            const chunkSize = localStorage.getItem('chunkSize');
+            if (!randomNumber) return;
+
+            const reversedNumber = randomNumber.split('').reverse().join('');
+            const chunkedReversedNumber = chunkNumber(reversedNumber, chunkSize);
+
+            document.getElementById('reversedResult').innerHTML = `<h5 class="highlight"><b>${chunkedReversedNumber}</b></h5>`;
+            document.getElementById('reversedResult').classList.toggle('hidden');
+        }
+
+        // Load number from localStorage when page loads
+        window.onload = function () {
+            const savedNumber = localStorage.getItem('randomNumber');
+            const savedChunkSize = localStorage.getItem('chunkSize');
+            if (savedNumber && savedChunkSize) {
+                const chunkedNumber = chunkNumber(savedNumber, savedChunkSize);
+                document.getElementById('result').innerHTML = `<h5 class="highlight"><b>${chunkedNumber}</b></h5>`;
+            }
+        };
+
+        // Event listeners
+        document.getElementById('generateBtn').addEventListener('click', displayAndSaveNumber);
+        document.getElementById('toggleReverseBtn').addEventListener('click', toggleReversedNumber);
+    </script>
+</body>
+</html>
